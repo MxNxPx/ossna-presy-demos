@@ -1,0 +1,51 @@
+bootcmd:
+  - "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -"
+  - "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -"
+apt:
+  sources:
+    kubernetes:
+      source: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    docker:
+      source: "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+package_update: true
+packages:
+  - containerd.io
+  - cowsay
+  - docker-ce
+  - docker-ce-cli
+  - git
+  - jq
+  - pacman
+  - pv
+  - tmux
+  - wget
+write_files:
+  - path: /etc/sysctl.d/k8s.conf
+    content: |
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.bridge.bridge-nf-call-iptables = 1
+  - path: /etc/docker/daemon.json
+    content: |
+      {
+        "exec-opts": ["native.cgroupdriver=systemd"],
+        "log-driver": "json-file",
+        "log-opts": {
+            "max-size": "100m"
+        },
+        "storage-driver": "overlay2"
+      }
+  - path: /root/.tool-versions
+    content: |
+      helm 3.8.0
+      helm-diff 3.4.1
+      helmfile 0.143.0
+      flux2 0.24.1
+      kind 0.11.1
+      krew 0.4.3
+      kubectl 1.23.3
+      nova 3.0.1
+runcmd:
+- git clone https://github.com/asdf-vm/asdf.git /root/.asdf --branch v0.9.0
+- echo ". /root/.asdf/asdf.sh" >> /root/.bashrc
+- curl -sLo /usr/local/share/demo-magic.sh https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh
+final_message: "[*] System setup complete | uptime: $UPTIME"
