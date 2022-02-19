@@ -4,8 +4,21 @@
 clear;echo;echo;
 PROMPT_TIMEOUT=0
 MSG="LET'S GET THIS DEMO STARTED..."
-COW="/usr/share/cowsay/cows/default.cow"
+COW="./nyan.cow"
 pe "echo \$MSG | cowsay -f \$COW"
+
+## install plugins from .tool-versions
+echo;echo
+p "[.] asdf setup"
+pei "grep -v '^#' ./.tool-versions|while read -r line; do NAME=\$(echo \$line|awk '{print \$1}'); URL=\$(echo \$line|grep -o \"#https://.*$\"|sed 's/^#//g'); echo \"[*] \$NAME \$URL\"; asdf plugin add \$NAME \$URL; done"
+pei "asdf install"
+
+## configure krew
+## previously ran:
+## # kubectl krew list > krew-plugin-list.txt
+pei "kubectl krew install < ./krew-plugin-list.txt"
+pei "asdf reshim krew"
+pei "grep -Eq '^export PATH=.*/.krew/bin' ~/.bashrc &>/dev/null || echo 'export PATH='\${KREW_ROOT:-\$HOME/.krew}/bin':\$PATH' >> /root/.bashrc ; . ~/.bashrc"
 
 ## create kind cluster
 echo;echo
@@ -14,20 +27,21 @@ pei "time (kind create cluster --config ./kind-config-1m2w-ingress.yaml --image 
 
 ## view cluster status
 echo;echo
-pe "kubectl get nodes -o wide"
+pei "kubectl get nodes -o wide"
 echo;echo
-pe "kubectl get pods -A"
+pei "kubectl get pods -A"
 
 echo;echo
-p "[.] kubernetes chaos engineering"
+p "[.] fun with k8s"
 
 ## deploy the innocent workload
-pe "helm repo add paulczar https://tech.paulcz.net/charts"
-pe "helm upgrade --install lifeform paulczar/raw -f ./kube-thanos-yaml/lifeform-deploy-helm-manifest.yaml --atomic --wait"
+pei "helm repo add paulczar https://tech.paulcz.net/charts"
+pei "helm upgrade --install lifeform paulczar/raw -f ./kube-thanos-yaml/lifeform-deploy-helm-manifest.yaml --atomic --wait"
 #pe "kubectl -n default apply -f ./kube-thanos-yaml/lifeform-deploy-spec.yaml; kubectl -n default wait deploy/life-form --for=condition=available --timeout=120s"
 
 ## verify working
-pe "kubectl -n default get deploy,pods -o wide"
+echo;echo
+pei "kubectl -n default get deploy,pods -o wide"
 
 ## prepare for the snap!
 echo;echo
