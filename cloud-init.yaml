@@ -43,6 +43,7 @@ write_files:
       kind 0.11.1
       krew 0.4.3
       kubectl 1.23.3
+      kustomize 4.5.2
       nova 3.0.1
 runcmd:
 - git clone https://github.com/asdf-vm/asdf.git /root/.asdf --branch v0.9.0

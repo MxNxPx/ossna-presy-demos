@@ -8,7 +8,7 @@ bash multipass-setup.sh
 #shell in
 multipass shell multipass-demo
 #switch users
-su -
+sudo su -
 #change directories to mount and run demo(s)
 cd ~/multipass-demo/asdf-demo
 bash demo.sh 
